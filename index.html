@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>적금 계산기</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            width: 350px;
+        }
+
+        h1 {
+            font-weight: 700;
+            color: #333;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            font-weight: 700;
+            margin-bottom: 5px;
+            color: #555;
+        }
+
+        input[type="text"], input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            margin-top: 4px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            box-sizing: border-box;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #0056b3;
+            color: white;
+            font-weight: 700;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+
+        button:hover {
+            background-color: #004085;
+        }
+
+        h2 {
+            font-size: 1.1em;
+            color: #333;
+            margin-top: 20px;
+        }
+
+        span {
+            color: #007bff;
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>적금 계산기</h1>
+        <div class="form-group">
+            <label for="monthlyPayment">월 보험료:</label>
+            <input type="text" id="monthlyPayment" placeholder="월 보험료 입력" onkeyup="formatCurrency(this)">
+        </div>
+        <div class="form-group">
+            <label for="refundRate">환급률(%):</label>
+            <input type="number" id="refundRate" placeholder="환급률 입력">
+        </div>
+        <div class="form-group">
+            <label for="cashFee">수수료(₩):</label>
+            <input type="text" id="cashFee" placeholder="수수료 입력 (현금)" onkeyup="formatCurrency(this)">
+        </div>
+        <button onclick="calculate()">계산하기</button>
+        <h2>총 납입 금액: <span id="totalPayment">0</span></h2>
+        <h2>예상 환급액: <span id="finalSavings">0</span></h2>
+        <h2>순이익: <span id="netProfit">0</span></h2>
+        <h2>적금 이자율: <span id="savingsInterest">0</span>%</h2>
+    </div>
+    <script>
+        function formatCurrency(input) {
+            let value = input.value.replace(/,/g, '').replace(/₩/g, '');
+            value = parseInt(value) || 0;
+            input.value = '₩' + value.toLocaleString();
+        }
+
+        function calculate() {
+            let monthlyPayment = parseFloat(document.getElementById('monthlyPayment').value.replace(/,/g, '').replace(/₩/g, '')) || 0;
+            let refundRate = parseFloat(document.getElementById('refundRate').value) || 0;
+            let cashFee = parseFloat(document.getElementById('cashFee').value.replace(/,/g, '').replace(/₩/g, '')) || 0;
+
+            const totalPayments = monthlyPayment * 12 * 5; // 총 납입 금액 계산
+            const finalSavings = (totalPayments * (refundRate / 100)) + cashFee; // 환급률과 수수료를 적용한 최종 환급액
+            const netProfit = finalSavings - totalPayments; // 순이익 계산
+            const savingsInterest = ((finalSavings / totalPayments - 1) * 100); // 연평균 이자율 계산
+
+            document.getElementById('totalPayment').innerText = new Intl.NumberFormat('ko-KR', {
+                style: 'currency',
+                currency: 'KRW'
+            }).format(totalPayments);
+
+            document.getElementById('finalSavings').innerText = new Intl.NumberFormat('ko-KR', {
+                style: 'currency',
+                currency: 'KRW'
+            }).format(finalSavings);
+
+            document.getElementById('netProfit').innerText = new Intl.NumberFormat('ko-KR', {
+                style: 'currency',
+                currency: 'KRW'
+            }).format(netProfit);
+
+            document.getElementById('savingsInterest').innerText = savingsInterest.toFixed(2);
+        }
+    </script>
+</body>
+</html>
